@@ -5,10 +5,14 @@ namespace App\Entity;
 use App\Repository\ProductDataRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductDataRepository::class)
- * @Table(name="tblProductData")
+ * @Table(name="tblProductData",
+ *     uniqueConstraints={@UniqueConstraint(name="product_code",
+ *     columns={"strProductCode"})})
  */
 class ProductData
 {
@@ -21,31 +25,34 @@ class ProductData
 
     /**
      * @ORM\Column(name="strProductName", type="string", length=50)
+     * @Assert\NotBlank
      */
     private $productName;
 
     /**
      * @ORM\Column(name="strProductDesc", type="string", length=255)
+     * @Assert\NotBlank
      */
     private $productDesc;
 
     /**
      * @ORM\Column(name="strProductCode", type="string", length=10)
+     * @Assert\NotBlank
      */
     private $productCode;
 
     /**
-     * @ORM\Column(name="dtmAdded", type="datetime")
+     * @ORM\Column(name="dtmAdded", type="datetime", nullable=true)
      */
     private $added;
 
     /**
-     * @ORM\Column(name="dtmDiscontinued", type="datetime")
+     * @ORM\Column(name="dtmDiscontinued", type="datetime", nullable=true)
      */
     private $discontinued;
 
     /**
-     * @ORM\Column(name="stmTimestamp", type="time", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP")
+     * @ORM\Column(name="stmTimestamp", type="datetime", columnDefinition="DATETIME DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP")
      */
     private $timestamp;
 
@@ -54,7 +61,7 @@ class ProductData
         return $this->id;
     }
 
-    public function getStrProductName()
+    public function getProductName()
     {
         return $this->productName;
     }
@@ -103,7 +110,7 @@ class ProductData
         return $this->discontinued;
     }
 
-    public function setDiscontinued($discontinued)
+    public function setDiscontinued($discontinued): ProductData
     {
         $this->discontinued = $discontinued;
         return $this;
