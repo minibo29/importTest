@@ -42,6 +42,20 @@ class ProductData
     private $productCode;
 
     /**
+     * @ORM\Column(name="strStock", type="integer")
+     * @Assert\NotBlank
+     * @Assert\GreaterThan(10)
+     */
+    private $stock;
+
+    /**
+     * @ORM\Column(name="intCost", type="float")
+     * @Assert\GreaterThan(5)
+     * @Assert\LessThan(1000)
+     */
+    private $cost;
+
+    /**
      * @ORM\Column(name="dtmAdded", type="datetime", nullable=true)
      */
     private $added;
@@ -119,5 +133,39 @@ class ProductData
     public function getTimestamp()
     {
         return $this->timestamp;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getStock(): int
+    {
+        return $this->stock;
+    }
+
+    /**
+     * @param integer $stock
+     */
+    public function setStock($stock): ProductData
+    {
+        $this->stock = $stock;
+        return $this;
+    }
+
+    /**
+     * @return numeric
+     */
+    public function getCost(): float|int|string
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @param numeric $cost
+     */
+    public function setCost($cost): ProductData
+    {
+        $this->cost = $cost;
+        return $this;
     }
 }
