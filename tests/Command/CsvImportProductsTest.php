@@ -16,7 +16,7 @@ class CsvImportProductsTest extends KernelTestCase
     /**
      * @test
      */
-    public function executeTest()
+    public function importTest()
     {
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
@@ -39,7 +39,9 @@ class CsvImportProductsTest extends KernelTestCase
         // the output of the command in the console
         $output = $commandTester->getDisplay();
 
+        // #todo write correct assert
         $assertOutput = '';
+
         $this->assertStringContainsString($assertOutput, $output);
     }
 
