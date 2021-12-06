@@ -6,7 +6,6 @@ use App\Repository\ProductDataRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductDataRepository::class)
@@ -25,33 +24,26 @@ class ProductData
 
     /**
      * @ORM\Column(name="strProductName", type="string", length=50)
-     * @Assert\NotBlank
      */
     private $productName;
 
     /**
      * @ORM\Column(name="strProductDesc", type="string", length=255)
-     * @Assert\NotBlank
      */
     private $productDesc;
 
     /**
      * @ORM\Column(name="strProductCode", type="string", length=10)
-     * @Assert\NotBlank
      */
     private $productCode;
 
     /**
-     * @ORM\Column(name="strStock", type="integer")
-     * @Assert\NotBlank
-     * @Assert\GreaterThan(10)
+     * @ORM\Column(name="intStock", type="integer")
      */
     private $stock;
 
     /**
-     * @ORM\Column(name="intCost", type="float")
-     * @Assert\GreaterThan(5)
-     * @Assert\LessThan(1000)
+     * @ORM\Column(name="stdCost", type="float")
      */
     private $cost;
 

@@ -1,41 +1,31 @@
 <?php
 namespace App\Command;
 
-use App\Entity\ProductData;
-use Doctrine\ORM\EntityManagerInterface;
-use ImportProductsHelper;
+use App\Service\Product\ImportProductsHelper;
 use League\Csv\Exception;
 use League\Csv\Reader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Validator\Constraints\Date;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
 class CsvImportProductsCommand extends Command
 {
 
-    private EntityManagerInterface $entityManager;
-    private ValidatorInterface $validator;
     private ImportProductsHelper $importProductsHelper;
 
     private int $batchingItemsCount = 1000;
 
     /**
-     * @param EntityManagerInterface $entityManager
-     * @param ValidatorInterface $validator
+     * @param ImportProductsHelper $importProductsHelper
      */
-    public function __construct(EntityManagerInterface $entityManager, ValidatorInterface $validator)
+    public function __construct(ImportProductsHelper $importProductsHelper)
     {
         parent::__construct();
-        $this->entityManager = $entityManager;
-        $this->validator = $validator;
-        $this->importProductsHelper = new ImportProductsHelper($entityManager, $validator);
+        $this->importProductsHelper = $importProductsHelper;
     }
 
     protected function configure(): void
@@ -48,7 +38,6 @@ class CsvImportProductsCommand extends Command
 
     public function determineHeader(array $header, InputInterface $input, OutputInterface $output): array
     {
-
         $formatter = $this->getHelper('formatter');
 
         $formattedLine = $formatter->formatSection(
@@ -102,11 +91,11 @@ class CsvImportProductsCommand extends Command
         $io->title('Start to Import products!!!');
         $io->progressStart(iterator_count($csvData));
 
-        foreach ($csvData as $product) {
-            $this->importProductsHelper->importProduct($product, $headers);
+//        foreach ($csvData as $product) {
+            $this->importProductsHelper->importProducts($csvData, $headers);
 
-            $io->progressAdvance($this->batchingItemsCount);
-        }
+//            $io->progressAdvance($this->batchingItemsCount);
+//        }
 
         $io->progressFinish();
 

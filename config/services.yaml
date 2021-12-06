@@ -20,10 +20,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
             - '../src/Tests/'
+
     console_command.csv_import_products:
         class: App\Command\CsvImportProductsCommand
-        arguments:
-            - "@doctrine.orm.entity_manager"
         tags:
             - { name: console.command }
 
