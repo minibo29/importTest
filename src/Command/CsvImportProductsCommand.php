@@ -1,9 +1,11 @@
 <?php
 namespace App\Command;
 
+use App\Dto\Product\ImportProductHeaderDto;
 use App\Service\Product\ImportProductsHelper;
 use League\Csv\Exception;
 use League\Csv\Reader;
+use League\Csv\Statement;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,8 +38,9 @@ class CsvImportProductsCommand extends Command
         ;
     }
 
-    public function determineHeader(array $header, InputInterface $input, OutputInterface $output): array
+    public function determineHeader(array $header, InputInterface $input, OutputInterface $output): ImportProductHeaderDto
     {
+        $importProductHeaderDto = new ImportProductHeaderDto();
         $formatter = $this->getHelper('formatter');
 
         $formattedLine = $formatter->formatSection(
@@ -48,12 +51,11 @@ class CsvImportProductsCommand extends Command
         $output->writeln($formattedLine);
 
         $helper = $this->getHelper('question');
-        $determineHeaders = [];
 
         $labels = [
-            'product_code' => 'Product Code',
-            'product_name' => 'Product Name',
-            'product_description' => 'Product Description',
+            'productCode' => 'Product Code',
+            'productName' => 'Product Name',
+            'productDesc' => 'Product Description',
             'stock' => 'Stock',
             'cost' => 'Cost',
             'discontinued' => 'Discontinued',
@@ -62,10 +64,10 @@ class CsvImportProductsCommand extends Command
         foreach ($labels as $key => $label) {
             $question = new Question('Please determine a "' . $label . '": ');
             $question->setAutocompleterValues($header);
-            $determineHeaders[$key] = $helper->ask($input, $output, $question);
+            $importProductHeaderDto->{$key} = $helper->ask($input, $output, $question);
         }
 
-        return $determineHeaders;
+        return $importProductHeaderDto;
     }
 
     /**
@@ -87,21 +89,31 @@ class CsvImportProductsCommand extends Command
 
         $csvData = $reader->setHeaderOffset(0);
         $headers = $this->determineHeader($csvData->getHeader(), $input, $output);
+        $productsCount = iterator_count($csvData);
 
         $io->title('Start to Import products!!!');
-        $io->progressStart(iterator_count($csvData));
+        $io->progressStart($productsCount);
 
-//        foreach ($csvData as $product) {
-            $this->importProductsHelper->importProducts($csvData, $headers);
+        $offset = 0;
+        $limit = $this->batchingItemsCount;
 
-//            $io->progressAdvance($this->batchingItemsCount);
-//        }
+        while ($productsCount > $offset) {
+            $stmt = Statement::create()
+                ->offset($offset)
+                ->limit($limit)
+            ;
+            $products = $stmt->process($csvData);
+            $this->importProductsHelper->importProducts($products, $headers);
+
+            $io->progressAdvance(iterator_count($products));
+            $offset += $limit;
+        }
 
         $io->progressFinish();
 
         $io->listing([
-            printf('Skipped %s Stocks.', 0),
-            printf('Imported %s Stocks.', 0),
+            printf('Skipped %s Stocks.', $this->importProductsHelper->getSkippedProductsCount()),
+            printf('Imported %s Stocks.', $this->importProductsHelper->getImportedProductsCount()),
         ]);
 
         return Command::SUCCESS;

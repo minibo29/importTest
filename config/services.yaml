@@ -21,6 +21,10 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
 
+    App\Service\Product\ImportProductsHelper:
+        tags:
+            - { name: monolog.logger, channel: "import_products" }
+
     console_command.csv_import_products:
         class: App\Command\CsvImportProductsCommand
         tags:
