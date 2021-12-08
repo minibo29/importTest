@@ -1,6 +1,6 @@
 <?php
 
-namespace Command;
+namespace App\Tests\Command;
 
 use App\Command\CsvImportProductsCommand;
 use Doctrine\ORM\EntityManagerInterface;

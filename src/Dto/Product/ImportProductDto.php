@@ -46,7 +46,7 @@ class ImportProductDto
 
     /**
      * @Serializing\Type("DateTime<Y-m-d\TH:I:S>")
-     * @var $discontinued \DateTime
+     * @var $discontinued ?|\DateTime
      */
-    public ?\DateTime $discontinued;
+    public $discontinued;
 }

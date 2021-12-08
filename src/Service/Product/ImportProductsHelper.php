@@ -22,9 +22,13 @@ class ImportProductsHelper
     /**
      * @param EntityManagerInterface $entityManager
      * @param ValidatorInterface $validator
+     * @param ImportProductDtoTransformer $importProductDtoTransformer
+     * @param LoggerInterface $logger
      */
-    public function __construct(EntityManagerInterface $entityManager, ValidatorInterface $validator,
-                                ImportProductDtoTransformer $importProductDtoTransformer, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager,
+                                ValidatorInterface $validator,
+                                ImportProductDtoTransformer $importProductDtoTransformer,
+                                LoggerInterface $logger)
     {
         $this->logger = $logger;
         $this->entityManager = $entityManager;
@@ -36,13 +40,9 @@ class ImportProductsHelper
      * @param iterable $csvData import data.
      * @param ImportProductHeaderDto $headers list of header
      *
-     * @return array
      */
-    public function importProducts(iterable $csvData, ImportProductHeaderDto $headers): array
+    public function importProducts(iterable $csvData, ImportProductHeaderDto $headers)
     {
-        $imported = 0;
-        $skippedStocks = [];
-
         foreach ($csvData as $product) {
             $productDto = new ImportProductDto();
             $productDto->productCode = $product[$headers->productCode];
@@ -63,11 +63,6 @@ class ImportProductsHelper
         }
 
         $this->entityManager->flush();
-
-        return [
-            $imported,
-            $skippedStocks
-        ];
     }
 
     public function convertCurrency()
@@ -91,6 +86,11 @@ class ImportProductsHelper
         return $this->skippedProductsCount;
     }
 
+    /**
+     * @param $product
+     * @param ConstraintViolationList $errors
+     * @return void
+     */
     private function logErrors($product, ConstraintViolationList $errors): void
     {
         foreach ($errors as $error) {

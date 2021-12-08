@@ -12,7 +12,7 @@ class ImportProductDtoTransformer extends AbstractDtoTransformer
      * @param ImportProductDto $object
      * @return ProductData
      */
-    public function transformToEntity($object): ProductData
+    public function transformToEntity(ImportProductDto $object): ProductData
     {
         return (new ProductData())
             ->setProductCode($object->productCode)
@@ -28,7 +28,7 @@ class ImportProductDtoTransformer extends AbstractDtoTransformer
      * @param ProductData $entity
      * @return ImportProductDto
      */
-    public function transformToObject($entity): ImportProductDto
+    public function transformToDto($entity): ImportProductDto
     {
         $dto = new ImportProductDto();
         $dto->productCode = $entity->getProductCode();
