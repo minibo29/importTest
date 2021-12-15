@@ -4,6 +4,26 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.currency.default: usd
+
+    app.currencies:
+        usd:
+            label: Dolar
+            code: USD
+            rate: 1
+            symbol: $
+
+        eur:
+            label: Euro
+            code: EUR
+            rate: 1.13
+            symbol: €
+
+        gbr:
+            lablel: Pound
+            code: GBR
+            rate: 1.32
+            symbol: £
 
 services:
     # default configuration for services in *this* file
@@ -21,9 +41,10 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
 
-    App\Service\Product\ImportProductsHelper:
-        tags:
-            - { name: monolog.logger, channel: "import_products" }
+#    App\Service\Product\ImportProductsHelper:
+#        arguments:
+#            $logger: '@monolog.logger'
+#            - { name: monolog.logger, handler: "import_products", channel: "import_products" }
 
     console_command.csv_import_products:
         class: App\Command\CsvImportProductsCommand

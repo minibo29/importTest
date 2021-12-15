@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Service\Product;
+namespace Service\Product;
 
 use App\Dto\Product\ImportProductHeaderDto;
 use App\Dto\Product\Transformer\ImportProductDtoTransformer;
@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 
-class TestImportProductsHelper extends KernelTestCase
+class ImportProductsHelperTest extends KernelTestCase
 {
     private EntityManagerInterface|MockObject $entityManager;
     private ValidatorInterface|MockObject $validator;

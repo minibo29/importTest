@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Dto\Product\Transformer;
+namespace Dto\Product\Transformer;
 
 use App\Dto\Product\ImportProductDto;
 use App\Dto\Product\Transformer\ImportProductDtoTransformer;

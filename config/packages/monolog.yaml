@@ -1,7 +1,6 @@
 monolog:
     handlers:
         import_products:
-            level: error
+            level: info
             type: stream
             path: "%kernel.logs_dir%/%kernel.environment%-import_products.log"
-            channels: [import_products]
