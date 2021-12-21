@@ -3,6 +3,7 @@ namespace App\Command;
 
 use App\Dto\Product\ImportProductHeaderDto;
 use App\Service\Product\ImportProductsHelper;
+use Doctrine\DBAL\Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use Symfony\Component\Console\Command\Command;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 
 class CsvImportProductsCommand extends Command
@@ -22,9 +24,11 @@ class CsvImportProductsCommand extends Command
 
     private int $batchingItemsCount = 1000;
     private ContainerBagInterface $params;
+    private SymfonyStyle $io;
 
     /**
      * @param ImportProductsHelper $importProductsHelper
+     * @param ContainerBagInterface $params
      */
     public function __construct(ImportProductsHelper $importProductsHelper,
                                 ContainerBagInterface $params)
@@ -41,6 +45,12 @@ class CsvImportProductsCommand extends Command
             ->addArgument('path', InputArgument::REQUIRED, 'Path to import file.')
         ;
     }
+
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        $this->io = new SymfonyStyle($input, $output);
+    }
+
 
     public function determineHeader(array $header, InputInterface $input, OutputInterface $output): ImportProductHeaderDto
     {
@@ -103,69 +113,83 @@ class CsvImportProductsCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
         $path = $input->getArgument('path');
 
-        if (!file_exists($path)) {
-            $io->error('File not exist: ' . $path);
-            return Command::INVALID;
-        }
-
-        $reader = Reader::createFromPath($path)
-            ->skipEmptyRecords()
-        ;
-
-        $csvData = $reader->setHeaderOffset(0);
-        $headers = $this->determineHeader($csvData->getHeader(), $input, $output);
-        $currency = $this->determineCurrency($input, $output);
-
         try {
+            $this->isFailValid($path);
+
+            $reader = Reader::createFromPath($path)
+                ->skipEmptyRecords()
+            ;
+
+            $csvData = $reader->setHeaderOffset(0);
+            $headers = $this->determineHeader($csvData->getHeader(), $input, $output);
+            $currency = $this->determineCurrency($input, $output);
+
             $this->importProductsHelper->setImportCurrency($currency);
+
+            $this->importFile($csvData, $headers);
+
         } catch (\Exception $e) {
-            $io->newLine(2);
-            $io->error($e->getMessage());
+            $this->io->newLine(2);
+            $this->io->error($e->getMessage());
             return Command::INVALID;
         }
-
-        $productsCount = iterator_count($csvData);
-
-        $io->title('Start to Import products!!!');
-        $io->progressStart($productsCount);
-
-        $offset = 0;
-        $limit = $this->batchingItemsCount;
-        try {
-            $this->importProductsHelper->startTransaction();
-            while ($productsCount > $offset) {
-                $stmt = Statement::create()
-                    ->offset($offset)
-                    ->limit($limit);
-                $products = $stmt->process($csvData);
-                $this->importProductsHelper->importProducts($products, $headers);
-
-                $io->progressAdvance(iterator_count($products));
-                $offset += $limit;
-            }
-        } catch (\Exception $e) {
-            $io->newLine(2);
-            $io->error($e->getMessage());
-            return Command::INVALID;
-        }
-
-        $this->importProductsHelper->commitTransaction();
-        $io->progressFinish();
-
-        $io->listing([
-            printf('Skipped %s Stocks.', $this->importProductsHelper->getSkippedProductsCount()),
-            printf('Imported %s Stocks.', $this->importProductsHelper->getImportedProductsCount()),
-        ]);
 
         return Command::SUCCESS;
     }
 
-    public function isFailValid($pathToFile)
+    /**
+     * @param $csvData
+     * @param $headers
+     *
+     * @return void
+     *
+     * @throws \League\Csv\Exception
+     * @throws \Exception
+     */
+    public function importFile($csvData, $headers)
     {
-        # todo validating a csv file
+        $productsCount = iterator_count($csvData);
+
+        $this->io->title('Start to Import products!!!');
+        $this->io->progressStart($productsCount);
+
+        $offset = 0;
+        $limit = $this->batchingItemsCount;
+        $this->importProductsHelper->startTransaction();
+        while ($productsCount > $offset) {
+            $stmt = Statement::create()
+                ->offset($offset)
+                ->limit($limit);
+            $products = $stmt->process($csvData);
+            $this->importProductsHelper->importProducts($products, $headers);
+
+            $this->io->progressAdvance(iterator_count($products));
+            $offset += $limit;
+        }
+        $this->importProductsHelper->commitTransaction();
+
+        $this->io->progressFinish();
+        $this->io->listing([
+            printf('Skipped %s Stocks.', $this->importProductsHelper->getSkippedProductsCount()),
+            printf('Imported %s Stocks.', $this->importProductsHelper->getImportedProductsCount()),
+        ]);
     }
 
+    /**
+     * @param $pathToFile
+     *
+     * @throws Exception
+     */
+    public function isFailValid($pathToFile)
+    {
+        if (!file_exists($pathToFile)) {
+            throw new Exception('File not exist: ' . $pathToFile, 1);
+        }
+
+        if (!mb_detect_encoding(file_get_contents($pathToFile), ['UTF-8'], true)) {
+            throw new Exception('File encoding is not correct.', 2);
+        }
+    }
 }
