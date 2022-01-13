@@ -14,11 +14,14 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
+use Traversable;
 
 
 class CsvImportProductsCommand extends Command
 {
+
+    const FILE_NOT_EXIST = 1;
+    const FILE_ENCODING_INCORRECT = 1;
 
     private ImportProductsHelper $importProductsHelper;
 
@@ -129,7 +132,6 @@ class CsvImportProductsCommand extends Command
             $this->importProductsHelper->setImportCurrency($currency);
 
             $this->importFile($csvData, $headers);
-
         } catch (\Exception $e) {
             $this->io->newLine(2);
             $this->io->error($e->getMessage());
@@ -140,15 +142,15 @@ class CsvImportProductsCommand extends Command
     }
 
     /**
-     * @param $csvData
-     * @param $headers
+     * @param Traversable $csvData
+     * @param ImportProductHeaderDto $headers
      *
      * @return void
      *
      * @throws \League\Csv\Exception
      * @throws \Exception
      */
-    public function importFile($csvData, $headers)
+    public function importFile(Traversable $csvData, ImportProductHeaderDto $headers)
     {
         $productsCount = iterator_count($csvData);
 
@@ -182,7 +184,7 @@ class CsvImportProductsCommand extends Command
      *
      * @throws Exception
      */
-    public function isFailValid($pathToFile)
+    public function isFailValid($pathToFile): bool
     {
         if (!file_exists($pathToFile)) {
             throw new Exception('File not exist: ' . $pathToFile, 1);
@@ -191,5 +193,7 @@ class CsvImportProductsCommand extends Command
         if (!mb_detect_encoding(file_get_contents($pathToFile), ['UTF-8'], true)) {
             throw new Exception('File encoding is not correct.', 2);
         }
+
+        return true;
     }
 }
