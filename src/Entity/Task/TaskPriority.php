@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Task;
 
-use App\Repository\TaskTypeRepository;
+use App\Repository\TaskPriorityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=TaskTypeRepository::class)
+ * @ORM\Entity(repositoryClass=TaskPriorityRepository::class)
  */
-class TaskType
+class TaskPriority
 {
     /**
      * @ORM\Id
@@ -21,6 +21,11 @@ class TaskType
      * @ORM\Column(type="string", length=255)
      */
     private $name;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $ins;
 
     public function getId(): ?int
     {
@@ -35,6 +40,18 @@ class TaskType
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getIns(): ?int
+    {
+        return $this->ins;
+    }
+
+    public function setIns(int $ins): self
+    {
+        $this->ins = $ins;
 
         return $this;
     }

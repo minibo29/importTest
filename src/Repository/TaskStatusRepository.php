@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\Task\TaskPriority;
+use App\Entity\TaskStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method TaskPriority|null find($id, $lockMode = null, $lockVersion = null)
- * @method TaskPriority|null findOneBy(array $criteria, array $orderBy = null)
- * @method TaskPriority[]    findAll()
- * @method TaskPriority[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method TaskStatus|null find($id, $lockMode = null, $lockVersion = null)
+ * @method TaskStatus|null findOneBy(array $criteria, array $orderBy = null)
+ * @method TaskStatus[]    findAll()
+ * @method TaskStatus[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TaskPriorityRepository extends ServiceEntityRepository
+class TaskStatusRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, TaskPriority::class);
+        parent::__construct($registry, TaskStatus::class);
     }
 
     // /**
-    //  * @return TaskPriority[] Returns an array of TaskPriority objects
+    //  * @return TaskStatus[] Returns an array of TaskStatus objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class TaskPriorityRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?TaskPriority
+    public function findOneBySomeField($value): ?TaskStatus
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.exampleField = :val')

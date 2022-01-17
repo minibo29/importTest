@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Entity;
-https://symfony.com/doc/4.0/security/entity_provider.html#forbid-inactive-users-advanceduserinterface
+
 use App\Repository\UserRepository;
+use App\Entity\Task\UserTask;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -37,8 +40,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
      */
     private $password;
 
+//    /**
+//     * @ORM\ManyToMany(targetEntity=Task::class)
+//     * @JoinTable(name="users_task",
+//     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+//     *      inverseJoinColumns={@JoinColumn(name="task_id", referencedColumnName="id", unique=true)}
+//     * )
+//     */
     /**
-     * @ORM\OneToMany(targetEntity=Task::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=UserTask::class, mappedBy="user")
      */
     private $task;
 
@@ -172,7 +182,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
     {
         if (!$this->task->contains($task)) {
             $this->task[] = $task;
-            $task->setUser($this);
         }
 
         return $this;
@@ -180,13 +189,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, \Serial
 
     public function removeTask(Task $task): self
     {
-        if ($this->task->removeElement($task)) {
-            // set the owning side to null (unless already changed)
-            if ($task->getUser() === $this) {
-                $task->setUser(null);
-            }
-        }
+        $this->task->removeElement($task);
 
         return $this;
     }
+
 }

@@ -2,7 +2,7 @@
 
 namespace App\Repository;
 
-use App\Entity\TaskType;
+use App\Entity\Task\TaskType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
