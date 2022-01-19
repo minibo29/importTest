@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Entity\Task\TaskPriority;
+use App\Entity\Task\UserTask;
 use App\Entity\User;
 use App\Entity\Task\TaskStatus;
 use App\Entity\Task\TaskType;
@@ -26,7 +27,7 @@ class Task
     private $title;
 
     /**
-     * @ORM\Column(name="strTaskDesc", type="string", length=255)
+     * @ORM\Column(name="strTaskDesc", type="text", length=255)
      * @Assert\NotBlank
      */
     private $desc;
@@ -60,11 +61,7 @@ class Task
     private $status;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class)
-     * @JoinTable(name="users_task",
-     *      joinColumns={@JoinColumn(name="task_id", referencedColumnName="id")},
-     *      inverseJoinColumns={@JoinColumn(name="user_id", referencedColumnName="id", unique=true)}
-     * )
+     * @ORM\OneToMany(targetEntity=UserTask::class, mappedBy="task")
      */
     private $user;
 
@@ -112,6 +109,70 @@ class Task
         $this->status = $status;
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param mixed $title
+     */
+    public function setTitle($title): void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDesc()
+    {
+        return $this->desc;
+    }
+
+    /**
+     * @param mixed $desc
+     */
+    public function setDesc($desc): void
+    {
+        $this->desc = $desc;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getScheduleTime()
+    {
+        return $this->scheduleTime;
+    }
+
+    /**
+     * @param mixed $scheduleTime
+     */
+    public function setScheduleTime($scheduleTime): void
+    {
+        $this->scheduleTime = $scheduleTime;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getUser(): ArrayCollection
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param ArrayCollection $user
+     */
+    public function setUser(ArrayCollection $user): void
+    {
+        $this->user = $user;
     }
 
 }
