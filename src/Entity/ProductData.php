@@ -6,7 +6,6 @@ use App\Repository\ProductDataRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductDataRepository::class)
@@ -25,21 +24,28 @@ class ProductData
 
     /**
      * @ORM\Column(name="strProductName", type="string", length=50)
-     * @Assert\NotBlank
      */
     private $productName;
 
     /**
      * @ORM\Column(name="strProductDesc", type="string", length=255)
-     * @Assert\NotBlank
      */
     private $productDesc;
 
     /**
      * @ORM\Column(name="strProductCode", type="string", length=10)
-     * @Assert\NotBlank
      */
     private $productCode;
+
+    /**
+     * @ORM\Column(name="intStock", type="integer")
+     */
+    private $stock;
+
+    /**
+     * @ORM\Column(name="stdCost", type="float")
+     */
+    private $cost;
 
     /**
      * @ORM\Column(name="dtmAdded", type="datetime", nullable=true)
@@ -119,5 +125,39 @@ class ProductData
     public function getTimestamp()
     {
         return $this->timestamp;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getStock(): int
+    {
+        return $this->stock;
+    }
+
+    /**
+     * @param integer $stock
+     */
+    public function setStock($stock): ProductData
+    {
+        $this->stock = $stock;
+        return $this;
+    }
+
+    /**
+     * @return numeric
+     */
+    public function getCost(): float|int|string
+    {
+        return $this->cost;
+    }
+
+    /**
+     * @param numeric $cost
+     */
+    public function setCost($cost): ProductData
+    {
+        $this->cost = $cost;
+        return $this;
     }
 }
